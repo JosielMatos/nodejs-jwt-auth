@@ -1,22 +1,14 @@
 const express = require("express");
 const app = express();
-const {User} = require('./models/User')
+const routes = require('./routes/routes')
+
+require("dotenv").config({ path: "./config/.env" });
 
 app.use(express.json());
 
-app.post("/register", (req, res) => {
-  res.json("register");
-});
-
-app.post("/login", (req, res) => {
-  res.json("login");
-});
-
-app.get("/profile", (req, res) => {
-  res.json("profile");
-});
-
 const PORT = process.env.PORT || 5000;
+
+app.use("/", routes);
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:5000`);
