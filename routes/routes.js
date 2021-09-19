@@ -1,6 +1,5 @@
 const express = require('express');
 const router = express.Router();
-const bcrypt = require('bcrypt');
 const User = require('../models/User')
 const jwt = require('jsonwebtoken')
 
@@ -9,18 +8,11 @@ router.get("/", (req, res) => {
 })
 
 router.post("/register", (req, res) => {
-  // const { username, password } = req.body;
+  const { username, password } = req.body;
 
-  const user = new User({
-    username: req.body.username,
-    password: req.body.password,
-  });
-
-  bcrypt.hash(user.password, 10).then((hash) => {
-    user.create({
-      username: username,
-      password: hash,
-    })  // hash on model ???
+  User.create({
+    username: username,
+    password: password,
   }).then(() => {
     res.json('Done! User registered!')
   }).catch(err => {
@@ -28,10 +20,13 @@ router.post("/register", (req, res) => {
   })
 });
 
-router.post("/login", (req, res) => {
-  jwt.sign(
-      //Todo
-  );
+router.post("/login", async (req, res) => {
+  const { username, password } = req.body;
+  const user = await User.findOne({username: username})
+  
+  if (!user) return res.status(400).json({error: "User does not exist."});
+
+  res.json('Wooooo!!! Logged In!')
 });
 
 router.get("/profile", (req, res) => {
