@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const User = require('../models/User')
-const jwt = require('jsonwebtoken')
-
+const User = require('../models/User');
+const bcrypt = require('bcrypt');
+const { createTokens } = require('../middlewares/jwt');
 router.get("/", (req, res) => {
     res.send("Great!")
 })
@@ -26,7 +26,23 @@ router.post("/login", async (req, res) => {
   
   if (!user) return res.status(400).json({error: "User does not exist."});
 
-  res.json('Wooooo!!! Logged In!')
+  const dbPassword = user.password;
+
+  bcrypt.compare(password, dbPassword).then(match => {
+    if (!match) {
+      res.status(400).json({error: "Wrong password and username combination!"})
+    } else {
+      const accessToken = createTokens(user)
+
+      res.cookie("access-token", accessToken, {
+        maxAge: 60*60*24*30*1000,
+      })
+
+      res.json('Wooooo!!! Logged In!')
+    }
+  })
+
+
 });
 
 router.get("/profile", (req, res) => {
