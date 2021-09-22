@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
 const bcrypt = require('bcrypt');
-const { createTokens } = require('../middlewares/jwt');
+const { createTokens, validateToken } = require('../middlewares/jwt');
 router.get("/", (req, res) => {
     res.send("Great!")
 })
@@ -45,7 +45,7 @@ router.post("/login", async (req, res) => {
 
 });
 
-router.get("/profile", (req, res) => {
+router.get("/profile", validateToken, (req, res) => {
   res.json("profile");
 });
 
