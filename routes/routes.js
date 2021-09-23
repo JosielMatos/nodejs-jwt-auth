@@ -1,11 +1,12 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const User = require('../models/User');
-const bcrypt = require('bcrypt');
-const { createTokens, validateToken } = require('../middlewares/jwt');
+const User = require("../models/User");
+const bcrypt = require("bcrypt");
+const { createTokens, validateToken } = require("../middlewares/jwt");
+
 router.get("/", (req, res) => {
-    res.send("Great!")
-})
+  res.send("Great!");
+});
 
 router.post("/register", (req, res) => {
   const { username, password } = req.body;
@@ -13,36 +14,39 @@ router.post("/register", (req, res) => {
   User.create({
     username: username,
     password: password,
-  }).then(() => {
-    res.json('Done! User registered!')
-  }).catch(err => {
-    if (err) res.status(400).json({error: err});
   })
+    .then(() => {
+      res.json("Done! User registered!");
+    })
+    .catch((err) => {
+      if (err) res.status(400).json({ error: err });
+    });
 });
 
 router.post("/login", async (req, res) => {
   const { username, password } = req.body;
-  const user = await User.findOne({username: username})
-  
-  if (!user) return res.status(400).json({error: "User does not exist."});
+  const user = await User.findOne({ username: username });
+
+  if (!user) return res.status(400).json({ error: "User does not exist." });
 
   const dbPassword = user.password;
 
-  bcrypt.compare(password, dbPassword).then(match => {
+  bcrypt.compare(password, dbPassword).then((match) => {
     if (!match) {
-      res.status(400).json({error: "Wrong password and username combination!"})
+      res
+        .status(400)
+        .json({ error: "Wrong password and username combination!" });
     } else {
-      const accessToken = createTokens(user)
+      const accessToken = createTokens(user);
 
       res.cookie("access-token", accessToken, {
-        maxAge: 60*60*24*30*1000,
-      })
+        maxAge: 60 * 60 * 24 * 30 * 1000,
+        httpOnly: true,
+      });
 
-      res.json('Wooooo!!! Logged In!')
+      res.json("Wooooo!!! Logged In!");
     }
-  })
-
-
+  });
 });
 
 router.get("/profile", validateToken, (req, res) => {

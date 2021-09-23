@@ -8,10 +8,10 @@ const createTokens = (user) => {
   return accessToken;
 };
 
-const validateToken = (req,res,next) => {
+const validateToken = (req, res, next) => {
   const token = req.cookies["access-token"];
 
-  if (!token) return res.status(400).json({error: "User not authenticated!"});
+  if (!token) return res.status(400).json({ error: "User not authenticated!" });
 
   try {
     const validToken = verify(token, process.env.JWT_SECRET);
@@ -19,10 +19,9 @@ const validateToken = (req,res,next) => {
       req.authenticated = true;
       return next();
     }
-  } catch (error) {
-    console.log(err)
-    return res.status(400).json({error: err})
+  } catch (err) {
+    return res.status(400).json({ error: err });
   }
-}
+};
 
 module.exports = { createTokens, validateToken };
